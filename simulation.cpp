@@ -15,9 +15,9 @@ simulation::simulation()
 void simulation::handle_event(ALLEGRO_EVENT ev){
    if(ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN){
        if(ev.mouse.button & 1)
-        fill_area(3, point(ev.mouse.x - 4, ev.mouse.y - 4) , point(ev.mouse.x + 4, ev.mouse.y + 4));
+        fill_area(3, point(ev.mouse.x, ev.mouse.y) , 10);
        if(ev.mouse.button & 2)
-        fill_area(0, point(ev.mouse.x - 4, ev.mouse.y - 4) , point(ev.mouse.x + 4, ev.mouse.y + 4));
+        fill_area(0, point(ev.mouse.x, ev.mouse.y) , 10);
    }
 }
 
@@ -188,11 +188,28 @@ void simulation::draw(bool redraw_all){
     al_flip_display();
 }
 void simulation::fill_area(char id, point top_left, point bottom_right){
-    for(unsigned int x = top_left.x; x < bottom_right.x; x++){
-        for(unsigned int y = top_left.y; y < bottom_right.y; y++){
+    for(int x = top_left.x; x < bottom_right.x; x++){
+        for(int y = top_left.y; y < bottom_right.y; y++){
+            if(!cell_exists(point(x,y)))
+                continue;
             changedParticles.push_back(point(x,y));
             currentParticles[x][y] = id;
             nextParticles[x][y] = id;
+        }
+    }
+}
+void simulation::fill_area(char id, point origin, int radius){
+    for(int x = -radius; x < radius; x++){
+        for(int y = -radius; y < radius; y++){
+            point cur_point = point(origin.x + x,origin.y + y);
+            if(!cell_exists(cur_point))
+                continue;
+            if(x * x + y * y > radius * radius)
+                continue;
+
+            changedParticles.push_back(cur_point);
+            currentParticles[cur_point.x][cur_point.y] = id;
+            nextParticles[cur_point.x][cur_point.y] = id;
         }
     }
 }

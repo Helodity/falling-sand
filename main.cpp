@@ -20,8 +20,6 @@ int main()
     ALLEGRO_EVENT event;
     al_start_timer(timer);
 
-    //fill_particles(3, point(100, 300), point(300, 310));
-    //fill_particles(2, point(130, 200), point(270, 250));
     game = new simulation();
 
     while(1)

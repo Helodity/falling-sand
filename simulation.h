@@ -26,6 +26,7 @@ private:
 	void swap_particles(point start, point target);
 	void draw(bool redraw_all);
 	void fill_area(char id, point top_left, point bottom_right);
+	void fill_area(char id, point origin, int radius);
 
 	ALLEGRO_COLOR get_color(point p);
 };
