@@ -24,7 +24,7 @@ private:
 	void tick_sand(point pos);
 	void tick_water(point pos);
 	void swap_particles(point start, point target);
-	void draw(bool redraw_all);
+	void draw_particles(bool redraw_all);
 	void fill_area(char id, point top_left, point bottom_right);
 	void fill_area(char id, point origin, int radius);
 

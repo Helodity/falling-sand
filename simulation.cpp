@@ -9,7 +9,7 @@ simulation::simulation()
             nextParticles[x][y] = 0;
         }
     }
-    draw(true);
+    draw_particles(true);
 }
 
 void simulation::handle_event(ALLEGRO_EVENT ev){
@@ -22,20 +22,11 @@ void simulation::handle_event(ALLEGRO_EVENT ev){
 }
 
 void simulation::tick(){
-
-    nextParticles[SCREEN_WIDTH / 4][0] = 1;
-    nextParticles[SCREEN_WIDTH / 2][0] = 1;
-    nextParticles[3 * SCREEN_WIDTH / 4][0] = 1;
-    nextParticles[145][0] = 1;
-    nextParticles[170][0] = 2;
-    nextParticles[171][0] = 2;
-    nextParticles[172][0] = 2;
-    nextParticles[173][0] = 2;
-    nextParticles[174][0] = 2;
-
+    fill_area(2, point(100,0), point(110, 1));
+    fill_area(1, point(200,0), point(210, 1));
 
     tick_particles();
-    draw(false);
+    draw_particles(false);
 }
 
 bool simulation::cell_exists(point pos){
@@ -173,7 +164,7 @@ void simulation::swap_particles(point start, point target){
     changedParticles.push_back(target);
 }
 
-void simulation::draw(bool redraw_all){
+void simulation::draw_particles(bool redraw_all){
     if(!redraw_all){
         al_hold_bitmap_drawing(true);
         for(size_t i = 0; i < changedParticles.size(); i++){
