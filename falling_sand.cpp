@@ -1,15 +1,4 @@
-#include <allegro5/allegro5.h>
-#include <allegro5/allegro_font.h>
-#include <allegro5/allegro_primitives.h>
-#include <string>
-#include <iostream>
-#include <vector>
-#include <algorithm>
-#include <stdbool.h>
-#include <stdio.h>
-#include <chrono>
-
-using namespace std;
+#include "Header.h"
 
 void must_init(bool test, const char *description)
 {
@@ -19,41 +8,6 @@ void must_init(bool test, const char *description)
     exit(1);
 }
 
-struct point{
-    int x, y;
-    point(int x, int y) :
-    x(x),
-    y(y){
-    }
-
-public:
-    bool equals(point p){
-        return p.x == x && p.y == y;
-    }
-    point left(){
-        return point(x - 1, y);
-    }
-    point right(){
-        return point(x + 1, y);
-    }
-    point above(){
-        return point(x, y - 1);
-    }
-    point below(){
-        return point(x, y + 1);
-    }
-};
-
-const int targetFPS = 100;
-float actualFPS;
-
-const int screenWidth = 500;
-const int screenHeight = 500;
-
-unsigned char currentParticles[screenWidth][screenHeight];
-unsigned char nextParticles[screenWidth][screenHeight];
-unsigned char rngValues[screenWidth][screenHeight];
-vector<point> changedParticles;
 
 ALLEGRO_COLOR get_color(unsigned int x, unsigned int y){
     unsigned char id = currentParticles[x][y];
@@ -83,14 +37,14 @@ void draw_map(bool redraw_all = false){
         al_hold_bitmap_drawing(false);
     } else {
         al_lock_bitmap(al_get_target_bitmap(), ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
-        for(unsigned int y = 0; y < screenHeight; y++){
-            for(unsigned int x = 0; x < screenWidth; x++){
+        for(unsigned int y = 0; y < SCREEN_HEIGHT; y++){
+            for(unsigned int x = 0; x < SCREEN_WIDTH; x++){
                 al_put_pixel(x - 1,y - 1, get_color(x,y));
             }
         }
         al_unlock_bitmap(al_get_target_bitmap());
     }
-    string fpsString = std::to_string(std::min((int)actualFPS,99));
+    string fpsString = std::to_string(std::min((int)CURRENT_FPS,99));
     al_draw_filled_rectangle(1, 1, 16, 10, al_map_rgb(100, 100, 100));
     ALLEGRO_FONT* font = al_create_builtin_font();
     al_draw_text(font, al_map_rgb(255, 255, 255), 1, 1, 0, fpsString.c_str());
@@ -99,11 +53,11 @@ void draw_map(bool redraw_all = false){
     al_flip_display();
 }
 
-bool exists(point p){
-    return p.x >= 0 && p.y >= 0 && p.x < screenWidth && p.y < screenHeight;
+bool cell_exists(point p){
+    return p.x >= 0 && p.y >= 0 && p.x < SCREEN_WIDTH && p.y < SCREEN_HEIGHT;
 }
-bool isAir(point p){
-    return exists(p) && nextParticles[p.x][p.y] == 0;
+bool is_air(point p){
+    return cell_exists(p) && nextParticles[p.x][p.y] == 0;
 }
 
 void swap_particle(point start, point target){
@@ -117,7 +71,7 @@ void swap_particle(point start, point target){
 void tick_sand(point p){
     int rng = rand() % 2;
     //Below
-    if(exists(p.below())) {
+    if(cell_exists(p.below())) {
         point t = p.below();
         if(nextParticles[p.x][p.y + 1] == 0) {
             swap_particle(p, t);
@@ -125,11 +79,11 @@ void tick_sand(point p){
         }
         if(nextParticles[p.x][p.y + 1] == 2) {
             //Try to push water before swapping
-            if(isAir(t.left())){
+            if(is_air(t.left())){
                 swap_particle(t, t.left());
-            } else if(isAir(t.right())){
+            } else if(is_air(t.right())){
                 swap_particle(t, t.right());
-            } else if(isAir(t.below())){
+            } else if(is_air(t.below())){
                 swap_particle(t, t.below());
             }
             swap_particle(p, t);
@@ -137,7 +91,7 @@ void tick_sand(point p){
         }
     }
     //Below Left
-    if(exists(p.below().left()) && rng == 0) {
+    if(cell_exists(p.below().left()) && rng == 0) {
         point t = p.below().left();
         if(nextParticles[p.x - 1][p.y + 1] == 0) {
             swap_particle(p, t);
@@ -145,11 +99,11 @@ void tick_sand(point p){
         }
         if(nextParticles[p.x - 1][p.y + 1] == 2) {
             //Try to push water before swapping
-            if(isAir(t.left())){
+            if(is_air(t.left())){
                 swap_particle(t, t.left());
-            } else if(isAir(t.right())){
+            } else if(is_air(t.right())){
                 swap_particle(t, t.right());
-            } else if(isAir(t.below())){
+            } else if(is_air(t.below())){
                 swap_particle(t, t.below());
             }
             swap_particle(p, t);
@@ -157,7 +111,7 @@ void tick_sand(point p){
         }
     }
     //Below Right
-    if(exists(p.below().right()) && rng == 1) {
+    if(cell_exists(p.below().right()) && rng == 1) {
         point t = p.below().right();
         if(nextParticles[p.x + 1][p.y + 1] == 0) {
             swap_particle(p, t);
@@ -165,11 +119,11 @@ void tick_sand(point p){
         }
         if(nextParticles[p.x + 1][p.y + 1] == 2) {
             //Try to push water before swapping
-            if(isAir(t.left())){
+            if(is_air(t.left())){
                 swap_particle(t, t.left());
-            } else if(isAir(t.right())){
+            } else if(is_air(t.right())){
                 swap_particle(t, t.right());
-            } else if(isAir(t.below())){
+            } else if(is_air(t.below())){
                 swap_particle(t, t.below());
             }
             swap_particle(p, t);
@@ -180,35 +134,35 @@ void tick_sand(point p){
 void tick_water(point p){
     int rng = rand() % 2;
     //Below
-    if(isAir(p.below())) {
+    if(is_air(p.below())) {
         swap_particle(p, p.below());
         return;
     }
     //Below Left
-    if(isAir(p.below().left()) && rng == 0) {
+    if(is_air(p.below().left()) && rng == 0) {
         swap_particle(p, p.below().left());
         return;
     }
     //Below Right
-    if(isAir(p.below().right()) && rng == 1) {
+    if(is_air(p.below().right()) && rng == 1) {
         swap_particle(p, p.below().right());
         return;
     }
     //Left
-    if(isAir(p.left()) && rng == 0) {
+    if(is_air(p.left()) && rng == 0) {
         swap_particle(p, p.left());
         return;
     }
     //Right
-    if(isAir(p.right()) && rng == 1) {
+    if(is_air(p.right()) && rng == 1) {
         swap_particle(p, p.right());
         return;
     }
 }
 void tick_particles(){
     changedParticles.clear();
-    for(unsigned int x = 0; x < screenWidth; x++){
-        for(unsigned int y = 0; y < screenHeight; y++){
+    for(unsigned int x = 0; x < SCREEN_WIDTH; x++){
+        for(unsigned int y = 0; y < SCREEN_HEIGHT; y++){
             point p = point(x,y);
             unsigned char id = currentParticles[x][y];
             switch (id) {
@@ -225,8 +179,8 @@ void tick_particles(){
             }
         }
     }
-    for(unsigned int x = 0; x < screenWidth; x++){
-        for(unsigned int y = 0; y < screenWidth; y++){
+    for(unsigned int x = 0; x < SCREEN_WIDTH; x++){
+        for(unsigned int y = 0; y < SCREEN_WIDTH; y++){
             currentParticles[x][y] = nextParticles[x][y];
         }
     }
@@ -248,9 +202,9 @@ int main()
     must_init(al_init(), "allegro");
     al_install_keyboard();
 
-    ALLEGRO_TIMER* timer = al_create_timer(1.0 / (float)targetFPS);
+    ALLEGRO_TIMER* timer = al_create_timer(1.0 / (float)TARGET_FPS);
     ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
-    ALLEGRO_DISPLAY* disp = al_create_display(screenWidth, screenHeight);
+    ALLEGRO_DISPLAY* disp = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT);
 
     al_register_event_source(queue, al_get_keyboard_event_source());
     al_register_event_source(queue, al_get_display_event_source(disp));
@@ -260,8 +214,8 @@ int main()
     ALLEGRO_EVENT event;
     al_start_timer(timer);
 
-    for(unsigned int x = 0; x < screenWidth; x++){
-        for(unsigned int y = 0; y < screenWidth; y++){
+    for(unsigned int x = 0; x < SCREEN_WIDTH; x++){
+        for(unsigned int y = 0; y < SCREEN_WIDTH; y++){
             rngValues[x][y] = rand() % 255;
         }
     }
@@ -291,7 +245,7 @@ int main()
             redraw = false;
             auto finish = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> elapsed = finish - start;
-            actualFPS = 1 / elapsed.count();
+            CURRENT_FPS = 1 / elapsed.count();
         }
     }
 
