@@ -28,7 +28,19 @@ struct point{
 
 public:
     bool equals(point p){
-    return p.x == x && p.y == y;
+        return p.x == x && p.y == y;
+    }
+    point left(){
+        return point(x - 1, y);
+    }
+    point right(){
+        return point(x + 1, y);
+    }
+    point above(){
+        return point(x, y - 1);
+    }
+    point below(){
+        return point(x, y + 1);
     }
 };
 
@@ -81,30 +93,11 @@ void draw_map(bool redraw_all = false){
     al_flip_display();
 }
 
-bool exists(int x, int y){
-    return x >= 0 && y >= 0 && x < screenWidth && y < screenHeight;
-}
 bool exists(point p){
     return p.x >= 0 && p.y >= 0 && p.x < screenWidth && p.y < screenHeight;
 }
-bool isAir(int x, int y){
-    return exists(x,y) && nextParticles[x][y] == 0;
-}
 bool isAir(point p){
     return exists(p) && nextParticles[p.x][p.y] == 0;
-}
-
-point below(point p){
-    return point(p.x, p.y + 1);
-}
-point left(point p){
-    return point(p.x - 1, p.y);
-}
-point above(point p){
-    return point(p.x, p.y - 1);
-}
-point right(point p){
-    return point(p.x + 1, p.y);
 }
 
 void swap_particle(point start, point target){
@@ -113,79 +106,65 @@ void swap_particle(point start, point target){
     changedParticles.push_back(start);
     changedParticles.push_back(target);
 }
-void swap_particle(int start_x, int start_y, int target_x, int target_y){
-    nextParticles[start_x][start_y] = nextParticles[target_x][target_y];
-    nextParticles[target_x][target_y] = currentParticles[start_x][start_y];
-    changedParticles.push_back(point(start_x, start_y));
-    changedParticles.push_back(point(target_x, target_y));
-}
-
-void push_particle(int start_x, int start_y, int target_x, int target_y){
-
-    nextParticles[start_x][start_y] = nextParticles[target_x][target_y];
-    nextParticles[target_x][target_y] = currentParticles[start_x][start_y];;
-    changedParticles.push_back(point(start_x, start_y));
-    changedParticles.push_back(point(target_x, target_y));
-}
 
 
 void tick_sand(point p){
     int rng = rand() % 2;
     //Below
-    if(exists(below(p))) {
-        point t = below(p);
+    if(exists(p.below())) {
+        point t = p.below();
         if(nextParticles[p.x][p.y + 1] == 0) {
             swap_particle(p, t);
             return;
         }
         if(nextParticles[p.x][p.y + 1] == 2) {
             //Try to push water before swapping
-            if(isAir(left(t))){
-                swap_particle(t, left(t));
-            } else if(isAir(right(t))){
-                swap_particle(t, right(t));
-            } else if(isAir(below(t))){
-                swap_particle(t, below(t));
+            if(isAir(t.left())){
+                swap_particle(t, t.left());
+            } else if(isAir(t.right())){
+                swap_particle(t, t.right());
+            } else if(isAir(t.below())){
+                swap_particle(t, t.below());
             }
             swap_particle(p, t);
             return;
         }
     }
     //Below Left
-    if(exists(below(left(p))) && rng == 0) {
-        point t = below(left(p));
+    if(exists(p.below().left()) && rng == 0) {
+        point t = p.below().left();
         if(nextParticles[p.x - 1][p.y + 1] == 0) {
             swap_particle(p, t);
             return;
         }
         if(nextParticles[p.x - 1][p.y + 1] == 2) {
             //Try to push water before swapping
-            if(isAir(left(t))){
-                swap_particle(t, left(t));
-            } else if(isAir(right(t))){
-                swap_particle(t, right(t));
-            } else if(isAir(below(t))){
-                swap_particle(t, below(t));
+            if(isAir(t.left())){
+                swap_particle(t, t.left());
+            } else if(isAir(t.right())){
+                swap_particle(t, t.right());
+            } else if(isAir(t.below())){
+                swap_particle(t, t.below());
             }
             swap_particle(p, t);
             return;
         }
     }
     //Below Right
-    if(exists(below(right(p))) && rng == 1) {
-        point t = below(right(p));
+    if(exists(p.below().right()) && rng == 1) {
+        point t = p.below().right();
         if(nextParticles[p.x + 1][p.y + 1] == 0) {
             swap_particle(p, t);
             return;
         }
         if(nextParticles[p.x + 1][p.y + 1] == 2) {
             //Try to push water before swapping
-            if(isAir(left(t))){
-                swap_particle(t, left(t));
-            } else if(isAir(right(t))){
-                swap_particle(t, right(t));
-            } else if(isAir(below(t))){
-                swap_particle(t, below(t));
+            if(isAir(t.left())){
+                swap_particle(t, t.left());
+            } else if(isAir(t.right())){
+                swap_particle(t, t.right());
+            } else if(isAir(t.below())){
+                swap_particle(t, t.below());
             }
             swap_particle(p, t);
             return;
@@ -195,28 +174,28 @@ void tick_sand(point p){
 void tick_water(point p){
     int rng = rand() % 2;
     //Below
-    if(isAir(below(p))) {
-        swap_particle(p, below(p));
+    if(isAir(p.below())) {
+        swap_particle(p, p.below());
         return;
     }
     //Below Left
-    if(isAir(below(left(p)))) {
-        swap_particle(p, below(left(p)));
+    if(isAir(p.below().left())) {
+        swap_particle(p, p.below().left());
         return;
     }
     //Below Right
-    if(isAir(below(right(p)))) {
-        swap_particle(p, below(right(p)));
+    if(isAir(p.below().right())) {
+        swap_particle(p, p.below().right());
         return;
     }
     //Left
-    if(isAir(left(p)) && rng == 0) {
-        swap_particle(p, left(p));
+    if(isAir(p.left()) && rng == 0) {
+        swap_particle(p, p.right());
         return;
     }
     //Right
-    if(isAir(right(p)) && rng == 1) {
-        swap_particle(p, right(p));
+    if(isAir(p.right()) && rng == 1) {
+        swap_particle(p, p.right());
         return;
     }
 }
@@ -277,13 +256,12 @@ int main()
             break;
         if(redraw && al_is_event_queue_empty(queue))
         {
-            currentParticles[screenWidth / 4][300] = 1;
-            currentParticles[screenWidth / 2][300] = 1;
-            currentParticles[3 * screenWidth / 4][300] = 1;
-            currentParticles[145][300] = 1;
-            currentParticles[170][350] = 2;
+            currentParticles[screenWidth / 4][0] = 1;
+            currentParticles[screenWidth / 2][0] = 1;
+            currentParticles[3 * screenWidth / 4][0] = 1;
+            currentParticles[145][0] = 1;
+            currentParticles[170][0] = 2;
 
-            //currentParticles[170][100] = 3;
             tick_particles();
             draw_map();
             redraw = false;
