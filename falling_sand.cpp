@@ -44,7 +44,7 @@ public:
     }
 };
 
-const int targetFPS = 50;
+const int targetFPS = 100;
 float actualFPS;
 
 const int screenWidth = 500;
@@ -52,17 +52,22 @@ const int screenHeight = 500;
 
 unsigned char currentParticles[screenWidth][screenHeight];
 unsigned char nextParticles[screenWidth][screenHeight];
+unsigned char rngValues[screenWidth][screenHeight];
 vector<point> changedParticles;
 
 ALLEGRO_COLOR get_color(unsigned int x, unsigned int y){
     unsigned char id = currentParticles[x][y];
+    char rng = rngValues[x][y];
     switch (id) {
         case 1:
-            return al_map_rgb(200, 128, 0);
+            rng = rng % 2;
+            if(rng == 1)
+                return al_map_rgb(180, 158, 0);
+            return al_map_rgb(180, 180, 0);
         case 2:
-            return al_map_rgb(20, 20, 200);
+            return al_map_rgb(20, 40, 200);
         case 3:
-            return al_map_rgb(150, 150, 200);
+            return al_map_rgb(100, 100, 100);
     }
     return al_map_rgb(0, 0, 30);
 }
@@ -80,14 +85,15 @@ void draw_map(bool redraw_all = false){
         al_lock_bitmap(al_get_target_bitmap(), ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
         for(unsigned int y = 0; y < screenHeight; y++){
             for(unsigned int x = 0; x < screenWidth; x++){
-                al_put_pixel(x,y, get_color(x,y));
+                al_put_pixel(x - 1,y - 1, get_color(x,y));
             }
         }
         al_unlock_bitmap(al_get_target_bitmap());
     }
-    al_draw_filled_rectangle(1,1,20,10, al_map_rgb(100, 100, 100));
+    string fpsString = std::to_string(std::min((int)actualFPS,99));
+    al_draw_filled_rectangle(1, 1, 16, 10, al_map_rgb(100, 100, 100));
     ALLEGRO_FONT* font = al_create_builtin_font();
-    al_draw_text(font, al_map_rgb(255, 255, 255), 1, 1, 0, std::to_string((int)actualFPS).c_str());
+    al_draw_text(font, al_map_rgb(255, 255, 255), 1, 1, 0, fpsString.c_str());
     al_destroy_font(font);
 
     al_flip_display();
@@ -179,18 +185,18 @@ void tick_water(point p){
         return;
     }
     //Below Left
-    if(isAir(p.below().left())) {
+    if(isAir(p.below().left()) && rng == 0) {
         swap_particle(p, p.below().left());
         return;
     }
     //Below Right
-    if(isAir(p.below().right())) {
+    if(isAir(p.below().right()) && rng == 1) {
         swap_particle(p, p.below().right());
         return;
     }
     //Left
     if(isAir(p.left()) && rng == 0) {
-        swap_particle(p, p.right());
+        swap_particle(p, p.left());
         return;
     }
     //Right
@@ -227,6 +233,15 @@ void tick_particles(){
 }
 
 
+void fill_particles(char id, point top_left, point bottom_right){
+    for(unsigned int x = top_left.x; x < bottom_right.x; x++){
+        for(unsigned int y = top_left.y; y < bottom_right.y; y++){
+            currentParticles[x][y] = id;
+            nextParticles[x][y] = id;
+        }
+    }
+}
+
 int main()
 {
     must_init(al_init_primitives_addon(), "primitives");
@@ -245,6 +260,15 @@ int main()
     ALLEGRO_EVENT event;
     al_start_timer(timer);
 
+    for(unsigned int x = 0; x < screenWidth; x++){
+        for(unsigned int y = 0; y < screenWidth; y++){
+            rngValues[x][y] = rand() % 255;
+        }
+    }
+
+    fill_particles(3, point(100, 300), point(300, 310));
+    fill_particles(2, point(130, 200), point(270, 250));
+
     draw_map(true);
     while(1)
     {
@@ -256,11 +280,11 @@ int main()
             break;
         if(redraw && al_is_event_queue_empty(queue))
         {
-            currentParticles[screenWidth / 4][0] = 1;
-            currentParticles[screenWidth / 2][0] = 1;
-            currentParticles[3 * screenWidth / 4][0] = 1;
-            currentParticles[145][0] = 1;
-            currentParticles[170][0] = 2;
+            //currentParticles[screenWidth / 4][0] = 1;
+            //currentParticles[screenWidth / 2][0] = 1;
+            //currentParticles[3 * screenWidth / 4][0] = 1;
+            //currentParticles[145][0] = 1;
+            //currentParticles[170][0] = 2;
 
             tick_particles();
             draw_map();
