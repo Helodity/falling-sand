@@ -23,11 +23,16 @@ void simulation::handle_event(ALLEGRO_EVENT ev){
 
 void simulation::tick(){
 
-    currentParticles[SCREEN_WIDTH / 4][0] = 1;
-    currentParticles[SCREEN_WIDTH / 2][0] = 1;
-    currentParticles[3 * SCREEN_WIDTH / 4][0] = 1;
-    currentParticles[145][0] = 1;
-    currentParticles[170][0] = 2;
+    nextParticles[SCREEN_WIDTH / 4][0] = 1;
+    nextParticles[SCREEN_WIDTH / 2][0] = 1;
+    nextParticles[3 * SCREEN_WIDTH / 4][0] = 1;
+    nextParticles[145][0] = 1;
+    nextParticles[170][0] = 2;
+    nextParticles[171][0] = 2;
+    nextParticles[172][0] = 2;
+    nextParticles[173][0] = 2;
+    nextParticles[174][0] = 2;
+
 
     tick_particles();
     draw(false);
@@ -161,8 +166,9 @@ void simulation::tick_sand(point pos){
 
 
 void simulation::swap_particles(point start, point target){
+    char id = nextParticles[start.x][start.y];
     nextParticles[start.x][start.y] = nextParticles[target.x][target.y];
-    nextParticles[target.x][target.y] = currentParticles[start.x][start.y];
+    nextParticles[target.x][target.y] = id;
     changedParticles.push_back(start);
     changedParticles.push_back(target);
 }
