@@ -104,7 +104,7 @@ void simulation::tick_particles(){
             }
     }
     for(unsigned int x = 0; x < SCREEN_WIDTH; x++){
-        for(unsigned int y = 0; y < SCREEN_WIDTH; y++){
+        for(unsigned int y = 0; y < SCREEN_HEIGHT; y++){
             currentParticles[x][y] = nextParticles[x][y];
         }
     }
@@ -212,7 +212,11 @@ void simulation::swap_particles(point start, point target){
 
 void simulation::draw_scene(){
     draw_particles(false);
+    changedParticles.clear();
+
+    al_destroy_bitmap(last_frame);
     last_frame = al_clone_bitmap(al_get_target_bitmap());
+
     al_draw_circle(user_input->mouse_pos.x,user_input->mouse_pos.y, place_data->place_radius, al_map_rgb(255,0,0), 2);
     al_flip_display();
 }
@@ -228,7 +232,6 @@ void simulation::draw_particles(bool redraw_all){
             al_draw_pixel(p.x ,p.y, get_color(p));
         }
         al_hold_bitmap_drawing(false);
-        changedParticles.clear();
     } else {
         al_lock_bitmap(al_get_target_bitmap(), ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
         for(unsigned int y = 0; y < SCREEN_HEIGHT; y++){
@@ -251,9 +254,10 @@ void simulation::fill_area(char id, point top_left, point bottom_right){
     }
 }
 void simulation::fill_area(char id, point origin, int radius){
+    point cur_point = point(0,0);
     for(int x = -radius; x < radius; x++){
         for(int y = -radius; y < radius; y++){
-            point cur_point = point(origin.x + x,origin.y + y);
+            cur_point = point(origin.x + x,origin.y + y);
             if(!cell_exists(cur_point))
                 continue;
             if(x * x + y * y > radius * radius)
