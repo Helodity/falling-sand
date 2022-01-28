@@ -3,6 +3,7 @@
 simulation::simulation()
 {
     user_input = new input_struct();
+    place_data = new user_stuff();
 	for(unsigned int x = 0; x < SCREEN_WIDTH; x++){
         for(unsigned int y = 0; y < SCREEN_HEIGHT; y++){
             rngValues[x][y] = rand() % 255;
@@ -12,7 +13,9 @@ simulation::simulation()
         }
     }
     std::random_shuffle(tick_order.begin(), tick_order.end());
+
     draw_particles(true);
+    last_frame = al_clone_bitmap(al_get_target_bitmap());
 }
 
 void simulation::handle_event(ALLEGRO_EVENT ev){
@@ -28,22 +31,51 @@ void simulation::handle_event(ALLEGRO_EVENT ev){
         if(ev.mouse.button & 2)
             user_input->right_mouse_down = false;
     }
+    if(ev.type == ALLEGRO_EVENT_KEY_DOWN){
+        user_input->keycodes.push_back(ev.keyboard.keycode);
+    }
     if(ev.type == ALLEGRO_EVENT_MOUSE_AXES){
+        user_input->scroll_wheel_change = ev.mouse.dz;
         user_input->mouse_pos = point(ev.mouse.x, ev.mouse.y);
     }
+}
+
+void simulation::handle_user_input(){
+    if(user_input->scroll_wheel_change != 0){
+        place_data->place_radius += user_input->scroll_wheel_change;
+        user_input->scroll_wheel_change = 0;
+    }
+
+    for(size_t i = 0; i < user_input->keycodes.size(); i++){
+        int keycode = user_input->keycodes[i];
+        switch (keycode)
+        {
+        case ALLEGRO_KEY_1:
+            place_data->selected_id = 1;
+            break;
+            case ALLEGRO_KEY_2:
+            place_data->selected_id = 2;
+            break;
+            case ALLEGRO_KEY_3:
+            place_data->selected_id = 3;
+            break;
+        }
+    }
+    user_input->keycodes.clear();
+
+    if(user_input->left_mouse_down)
+        fill_area(place_data->selected_id, user_input->mouse_pos, place_data->place_radius);
+    if(user_input->right_mouse_down)
+        fill_area(0, user_input->mouse_pos, place_data->place_radius);
 }
 
 void simulation::tick(){
     fill_area(2, point(100,0), point(110, 1));
     fill_area(1, point(200,0), point(210, 1));
 
-    if(user_input->left_mouse_down)
-        fill_area(3, user_input->mouse_pos, 10);
-    if(user_input->right_mouse_down)
-        fill_area(0, user_input->mouse_pos, 10);
-
+    handle_user_input();
     tick_particles();
-    draw_particles(false);
+    draw_scene();
 }
 
 bool simulation::cell_exists(point pos){
@@ -55,7 +87,6 @@ bool simulation::is_air(point pos){
 }
 
 void simulation::tick_particles(){
-
     for(size_t i = 0; i < tick_order.size(); i++){
         point p = tick_order[i];
         unsigned char id = currentParticles[p.x][p.y];
@@ -171,7 +202,6 @@ void simulation::tick_sand(point pos){
     }
 }
 
-
 void simulation::swap_particles(point start, point target){
     char id = nextParticles[start.x][start.y];
     nextParticles[start.x][start.y] = nextParticles[target.x][target.y];
@@ -180,8 +210,18 @@ void simulation::swap_particles(point start, point target){
     changedParticles.push_back(target);
 }
 
+void simulation::draw_scene(){
+    draw_particles(false);
+    last_frame = al_clone_bitmap(al_get_target_bitmap());
+    al_draw_circle(user_input->mouse_pos.x,user_input->mouse_pos.y, place_data->place_radius, al_map_rgb(255,0,0), 2);
+    al_flip_display();
+}
+
 void simulation::draw_particles(bool redraw_all){
+
+
     if(!redraw_all){
+        al_draw_bitmap(last_frame, 0, 0, 0);
         al_hold_bitmap_drawing(true);
         for(size_t i = 0; i < changedParticles.size(); i++){
             point p = changedParticles[i];
@@ -198,7 +238,6 @@ void simulation::draw_particles(bool redraw_all){
         }
         al_unlock_bitmap(al_get_target_bitmap());
     }
-    al_flip_display();
 }
 void simulation::fill_area(char id, point top_left, point bottom_right){
     for(int x = top_left.x; x < bottom_right.x; x++){
