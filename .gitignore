@@ -4,7 +4,6 @@ Release/
 packages/
 Win32/
 x64/
-gnu_make/pikifen
 *__pycache__*
 *.vscode*
 allegro.log
@@ -12,8 +11,3 @@ allegro.log
 *.o
 *.d
 *.aps
-User_data/*
-/pikifen
-/pikifen_shortcut
-/Pikifen.exe
-.DS_Store
