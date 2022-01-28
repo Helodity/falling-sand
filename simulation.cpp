@@ -2,6 +2,7 @@
 
 simulation::simulation()
 {
+    user_input = new input_struct();
 	for(unsigned int x = 0; x < SCREEN_WIDTH; x++){
         for(unsigned int y = 0; y < SCREEN_HEIGHT; y++){
             rngValues[x][y] = rand() % 255;
@@ -15,17 +16,31 @@ simulation::simulation()
 }
 
 void simulation::handle_event(ALLEGRO_EVENT ev){
-   if(ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN){
-       if(ev.mouse.button & 1)
-        fill_area(3, point(ev.mouse.x, ev.mouse.y) , 10);
-       if(ev.mouse.button & 2)
-        fill_area(0, point(ev.mouse.x, ev.mouse.y) , 10);
-   }
+    if(ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN){
+        if(ev.mouse.button & 1)
+            user_input->left_mouse_down = true;
+        if(ev.mouse.button & 2)
+            user_input->right_mouse_down = true;
+    }
+    if(ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP){
+        if(ev.mouse.button & 1)
+            user_input->left_mouse_down = false;
+        if(ev.mouse.button & 2)
+            user_input->right_mouse_down = false;
+    }
+    if(ev.type == ALLEGRO_EVENT_MOUSE_AXES){
+        user_input->mouse_pos = point(ev.mouse.x, ev.mouse.y);
+    }
 }
 
 void simulation::tick(){
     fill_area(2, point(100,0), point(110, 1));
     fill_area(1, point(200,0), point(210, 1));
+
+    if(user_input->left_mouse_down)
+        fill_area(3, user_input->mouse_pos, 10);
+    if(user_input->right_mouse_down)
+        fill_area(0, user_input->mouse_pos, 10);
 
     tick_particles();
     draw_particles(false);
@@ -170,7 +185,7 @@ void simulation::draw_particles(bool redraw_all){
         al_hold_bitmap_drawing(true);
         for(size_t i = 0; i < changedParticles.size(); i++){
             point p = changedParticles[i];
-            al_draw_pixel(p.x,p.y, get_color(p));
+            al_draw_pixel(p.x ,p.y, get_color(p));
         }
         al_hold_bitmap_drawing(false);
         changedParticles.clear();

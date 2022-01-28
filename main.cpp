@@ -9,7 +9,7 @@ int main()
 
     ALLEGRO_TIMER* timer = al_create_timer(1.0 / (float)TARGET_FPS);
     ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
-    ALLEGRO_DISPLAY* disp = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT);
+    ALLEGRO_DISPLAY* disp = al_create_display(SCREEN_WIDTH - 1, SCREEN_HEIGHT - 1);
 
     al_register_event_source(queue, al_get_keyboard_event_source());
     al_register_event_source(queue, al_get_display_event_source(disp));
