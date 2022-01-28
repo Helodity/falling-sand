@@ -12,14 +12,14 @@ simulation::simulation()
     draw(true);
 }
 
-bool simulation::cell_exists(point pos){
-    return pos.x >= 0 && pos.y >= 0 && pos.x < SCREEN_WIDTH && pos.y < SCREEN_HEIGHT;
+void simulation::handle_event(ALLEGRO_EVENT ev){
+   if(ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN){
+       if(ev.mouse.button & 1)
+        fill_area(3, point(ev.mouse.x - 4, ev.mouse.y - 4) , point(ev.mouse.x + 4, ev.mouse.y + 4));
+       if(ev.mouse.button & 2)
+        fill_area(0, point(ev.mouse.x - 4, ev.mouse.y - 4) , point(ev.mouse.x + 4, ev.mouse.y + 4));
+   }
 }
-
-bool simulation::is_air(point pos){
-    return cell_exists(pos) && nextParticles[pos.x][pos.y] == 0;
-}
-
 
 void simulation::tick(){
 
@@ -33,8 +33,15 @@ void simulation::tick(){
     draw(false);
 }
 
+bool simulation::cell_exists(point pos){
+    return pos.x >= 0 && pos.y >= 0 && pos.x < SCREEN_WIDTH && pos.y < SCREEN_HEIGHT;
+}
+
+bool simulation::is_air(point pos){
+    return cell_exists(pos) && nextParticles[pos.x][pos.y] == 0;
+}
+
 void simulation::tick_particles(){
-    changedParticles.clear();
     for(unsigned int x = 0; x < SCREEN_WIDTH; x++){
         for(unsigned int y = 0; y < SCREEN_HEIGHT; y++){
             point p = point(x,y);
@@ -168,6 +175,7 @@ void simulation::draw(bool redraw_all){
             al_draw_pixel(p.x,p.y, get_color(p));
         }
         al_hold_bitmap_drawing(false);
+        changedParticles.clear();
     } else {
         al_lock_bitmap(al_get_target_bitmap(), ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
         for(unsigned int y = 0; y < SCREEN_HEIGHT; y++){
@@ -182,6 +190,7 @@ void simulation::draw(bool redraw_all){
 void simulation::fill_area(char id, point top_left, point bottom_right){
     for(unsigned int x = top_left.x; x < bottom_right.x; x++){
         for(unsigned int y = top_left.y; y < bottom_right.y; y++){
+            changedParticles.push_back(point(x,y));
             currentParticles[x][y] = id;
             nextParticles[x][y] = id;
         }

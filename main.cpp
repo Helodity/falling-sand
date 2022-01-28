@@ -5,6 +5,7 @@ int main()
     al_init_primitives_addon();
     al_init();
     al_install_keyboard();
+    al_install_mouse();
 
     ALLEGRO_TIMER* timer = al_create_timer(1.0 / (float)TARGET_FPS);
     ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
@@ -13,6 +14,7 @@ int main()
     al_register_event_source(queue, al_get_keyboard_event_source());
     al_register_event_source(queue, al_get_display_event_source(disp));
     al_register_event_source(queue, al_get_timer_event_source(timer));
+    al_register_event_source(queue, al_get_mouse_event_source());
 
     bool redraw = true;
     ALLEGRO_EVENT event;
@@ -30,6 +32,8 @@ int main()
             redraw = true;
         else if(event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
             break;
+
+        game->handle_event(event);
         if(redraw && al_is_event_queue_empty(queue))
         {
             game->tick();

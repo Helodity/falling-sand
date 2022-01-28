@@ -10,7 +10,7 @@ public:
 	simulation();
 
 	void tick();
-	
+	void handle_event(ALLEGRO_EVENT ev);
 private:
 	unsigned char currentParticles[SCREEN_WIDTH][SCREEN_HEIGHT];
 	unsigned char nextParticles[SCREEN_WIDTH][SCREEN_HEIGHT];
