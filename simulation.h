@@ -15,6 +15,7 @@ private:
 	unsigned char currentParticles[SCREEN_WIDTH][SCREEN_HEIGHT];
 	unsigned char nextParticles[SCREEN_WIDTH][SCREEN_HEIGHT];
 	unsigned char rngValues[SCREEN_WIDTH][SCREEN_HEIGHT];
+	vector<point> tick_order;
 	vector<point> changedParticles;
 
 	bool cell_exists(point pos);

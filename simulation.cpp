@@ -7,8 +7,10 @@ simulation::simulation()
             rngValues[x][y] = rand() % 255;
             currentParticles[x][y] = 0;
             nextParticles[x][y] = 0;
+            tick_order.push_back(point(x,y));
         }
     }
+    std::random_shuffle(tick_order.begin(), tick_order.end());
     draw_particles(true);
 }
 
@@ -38,10 +40,10 @@ bool simulation::is_air(point pos){
 }
 
 void simulation::tick_particles(){
-    for(unsigned int x = 0; x < SCREEN_WIDTH; x++){
-        for(unsigned int y = 0; y < SCREEN_HEIGHT; y++){
-            point p = point(x,y);
-            unsigned char id = currentParticles[x][y];
+
+    for(size_t i; i < tick_order.size(); i++){
+        point p = tick_order[i];
+        unsigned char id = currentParticles[p.x][p.y];
             switch (id) {
                 //Sand
                 case 1:
@@ -54,7 +56,6 @@ void simulation::tick_particles(){
                 case 3:
                 break;
             }
-        }
     }
     for(unsigned int x = 0; x < SCREEN_WIDTH; x++){
         for(unsigned int y = 0; y < SCREEN_WIDTH; y++){
