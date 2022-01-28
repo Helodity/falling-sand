@@ -41,7 +41,7 @@ bool simulation::is_air(point pos){
 
 void simulation::tick_particles(){
 
-    for(size_t i; i < tick_order.size(); i++){
+    for(size_t i = 0; i < tick_order.size(); i++){
         point p = tick_order[i];
         unsigned char id = currentParticles[p.x][p.y];
             switch (id) {
