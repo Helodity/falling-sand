@@ -78,11 +78,14 @@ void simulation::tick(){
 }
 
 void simulation::tick_particles(){
-    for(size_t i = 0; i < tick_order.size(); i++){
-        point p = tick_order[i];
-        map->get_current_particle(p)->tick(map, p);
+    for(int i = 0; i < tick_order.size(); i++){
+        tick_particle(tick_order[i]);
     }
     map->store_next_particles();
+}
+
+void simulation::tick_particle(point p){
+    map->get_current_particle(p)->tick(map, p);
 }
 
 void simulation::draw_scene(){
@@ -99,11 +102,13 @@ void simulation::draw_particles(bool redraw_all){
     if(!redraw_all){
         al_draw_bitmap(last_frame, 0, 0, 0);
         al_hold_bitmap_drawing(true);
+        al_lock_bitmap(al_get_target_bitmap(), ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
         vector<point> changed = map->get_changed_particles();
         for(size_t i = 0; i < changed.size(); i++){
             point p = changed[i];
-            al_draw_pixel(p.x ,p.y, map->get_current_particle(p)->color);
+            al_put_pixel(p.x ,p.y, map->get_current_particle(p)->color);
         }
+        al_unlock_bitmap(al_get_target_bitmap());
         al_hold_bitmap_drawing(false);
     } else {
         al_lock_bitmap(al_get_target_bitmap(), ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);

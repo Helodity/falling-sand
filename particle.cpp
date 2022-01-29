@@ -130,52 +130,16 @@ ice_particle::ice_particle()
 }
 
 void ice_particle::tick(particle_map* map, point pos){
-    if(map->in_bounds(pos.below())){
-        if(map->get_current_particle(pos.below())->id == 2) {
-            map->set_particle(map->create_particle(4), pos.below());
-            return;
-        }
+    if (try_spread(map, pos, pos.below())){return;}
+    if (try_spread(map, pos, pos.left())){return;}
+    if (try_spread(map, pos, pos.above())){return;}
+    if (try_spread(map, pos, pos.right())){return;}
+}
+
+bool ice_particle::try_spread(particle_map* map, point pos, point target){
+    if(map->is_type(2, target)){
+        map->set_particle(map->create_particle(4), target);
+        return true;
     }
-    if(map->in_bounds(pos.below().left())){
-        if(map->get_current_particle(pos.below().left())->id == 2) {
-            map->set_particle(map->create_particle(4), pos.below().left());
-            return;
-        }
-    }
-    if(map->in_bounds(pos.below().right())){
-        if(map->get_current_particle(pos.below().right())->id == 2) {
-            map->set_particle(map->create_particle(4), pos.below().right());
-            return;
-        }
-    }
-    if(map->in_bounds(pos.above())){
-        if(map->get_current_particle(pos.above())->id == 2) {
-            map->set_particle(map->create_particle(4), pos.above());
-            return;
-        }
-    }
-    if(map->in_bounds(pos.above().left())){
-        if(map->get_current_particle(pos.above().left())->id == 2) {
-            map->set_particle(map->create_particle(4), pos.above().left());
-            return;
-        }
-    }
-    if(map->in_bounds(pos.above().right())){
-        if(map->get_current_particle(pos.above().right())->id == 2) {
-            map->set_particle(map->create_particle(4), pos.above().right());
-            return;
-        }
-    }
-    if(map->in_bounds(pos.left())){
-        if(map->get_current_particle(pos.left())->id == 2) {
-            map->set_particle(map->create_particle(4), pos.left());
-            return;
-        }
-    }
-    if(map->in_bounds(pos.left())){
-        if(map->get_current_particle(pos.left())->id == 2) {
-            map->set_particle(map->create_particle(4), pos.right());
-            return;
-        }
-    }
+    return false;
 }

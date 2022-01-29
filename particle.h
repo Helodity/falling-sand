@@ -49,6 +49,9 @@ public:
 };
 
 class ice_particle : public particle {
+private:
+	bool try_spread(particle_map* map, point pos, point target);
+
 public:
 	void tick(particle_map* map, point pos);
 	ice_particle();

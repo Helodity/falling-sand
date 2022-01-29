@@ -23,6 +23,7 @@ private:
 
 	void handle_user_input();
 	void tick_particles();
+	void tick_particle(point p);
 	void draw_scene();
 	void draw_particles(bool redraw_all);
 };
