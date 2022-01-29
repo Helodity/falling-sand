@@ -24,7 +24,6 @@ int main()
 
     while(1)
     {
-        auto start = std::chrono::high_resolution_clock::now();
         al_wait_for_event(queue, &event);
         if(event.type == ALLEGRO_EVENT_TIMER)
             redraw = true;
@@ -36,9 +35,6 @@ int main()
         {
             game->tick();
             redraw = false;
-            auto finish = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<double> elapsed = finish - start;
-            CURRENT_FPS = 1 / elapsed.count();
         }
     }
 

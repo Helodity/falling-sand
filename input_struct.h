@@ -2,7 +2,7 @@
 #define INPUT
 
 #include "point.h"
-#include "header.h"
+#include "global.h"
 
 class input_struct
 {

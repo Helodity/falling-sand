@@ -191,6 +191,7 @@
   <ItemGroup>
     <ClCompile Include="input_struct.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="particle_map.cpp" />
     <ClCompile Include="particle.cpp" />
     <ClCompile Include="point.cpp" />
     <ClCompile Include="simulation.cpp" />
@@ -199,10 +200,11 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="header.h" />
+    <ClInclude Include="global.h" />
     <ClInclude Include="input_struct.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="particle.h" />
+    <ClInclude Include="particle_map.h" />
     <ClInclude Include="point.h" />
     <ClInclude Include="simulation.h" />
   </ItemGroup>
