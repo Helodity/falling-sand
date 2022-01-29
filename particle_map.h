@@ -6,7 +6,7 @@
 class particle; //TODO: resolve cyclical dependency
 class particle_map{
 private:
-	//TODO: These cause a memory leak when changing the particle
+
 	particle* current_particles[SCREEN_WIDTH][SCREEN_HEIGHT];
 	particle* next_particles[SCREEN_WIDTH][SCREEN_HEIGHT];
 	vector<point> changed_particles;

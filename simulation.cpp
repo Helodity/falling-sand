@@ -10,7 +10,7 @@ simulation::simulation()
             tick_order.push_back(point(x,y));
         }
     }
-
+    random_shuffle(tick_order.begin(), tick_order.end());
     draw_particles(true);
     last_frame = al_clone_bitmap(al_get_target_bitmap());
 }
@@ -65,7 +65,7 @@ void simulation::handle_user_input(){
 
     if(user_input->left_mouse_down)
         map->fill_circular_area(place_data->selected_id, user_input->mouse_pos, place_data->place_radius);
-    if(user_input->right_mouse_down)
+    else if(user_input->right_mouse_down)
         map->fill_circular_area(0, user_input->mouse_pos, place_data->place_radius);
 }
 
@@ -76,11 +76,9 @@ void simulation::tick(){
 }
 
 void simulation::tick_particles(){
-    random_shuffle(tick_order.begin(), tick_order.end());
     for(size_t i = 0; i < tick_order.size(); i++){
         point p = tick_order[i];
-        particle* cur_particle = map->get_current_particle(p);
-        cur_particle->tick(map, p);
+        map->get_current_particle(p)->tick(map, p);
     }
     map->store_next_particles();
 }

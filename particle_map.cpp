@@ -8,7 +8,7 @@ particle_map::particle_map(){
                 continue;
 
             particle* p = create_particle(0);
-            set_particle(p, point(x,y));
+            next_particles[x][y] = p;
             current_particles[x][y] = p;
         }
     }
@@ -27,7 +27,6 @@ void particle_map::set_particle(particle* part, point pos){
         return;
 
 	next_particles[pos.x][pos.y] = part;
-
     changed_particles.push_back(pos);
 }
 
@@ -84,10 +83,10 @@ particle* particle_map::get_next_particle(point p){
     return next_particles[p.x][p.y];
 }
 void particle_map::store_next_particles(){
-    for(unsigned int x = 0; x < SCREEN_WIDTH; x++){
-        for(unsigned int y = 0; y < SCREEN_HEIGHT; y++){
-            current_particles[x][y] = next_particles[x][y];
-        }
+    for(size_t i = 0; i < changed_particles.size(); i++){
+        point p = changed_particles[i];
+        delete current_particles[p.x][p.y];
+        current_particles[p.x][p.y] = next_particles[p.x][p.y];
     }
 }
 void particle_map::clear_changed_particles(){
