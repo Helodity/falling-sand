@@ -6,13 +6,12 @@ simulation::simulation()
     place_data = new user_stuff();
 	for(unsigned int x = 0; x < SCREEN_WIDTH; x++){
         for(unsigned int y = 0; y < SCREEN_HEIGHT; y++){
-            rngValues[x][y] = rand() % 255;
-            currentParticles[x][y] = 0;
-            nextParticles[x][y] = 0;
             tick_order.push_back(point(x,y));
         }
     }
     std::random_shuffle(tick_order.begin(), tick_order.end());
+
+    fill_area(0, point(0,0), point(SCREEN_WIDTH, SCREEN_HEIGHT));
 
     draw_particles(true);
     last_frame = al_clone_bitmap(al_get_target_bitmap());
@@ -59,6 +58,9 @@ void simulation::handle_user_input(){
             case ALLEGRO_KEY_3:
             place_data->selected_id = 3;
             break;
+            case ALLEGRO_KEY_4:
+            place_data->selected_id = 4;
+            break;
         }
     }
     user_input->keycodes.clear();
@@ -70,9 +72,6 @@ void simulation::handle_user_input(){
 }
 
 void simulation::tick(){
-    fill_area(2, point(100,0), point(110, 1));
-    fill_area(1, point(200,0), point(210, 1));
-
     handle_user_input();
     tick_particles();
     draw_scene();
@@ -83,13 +82,13 @@ bool simulation::cell_exists(point pos){
 }
 
 bool simulation::is_air(point pos){
-    return cell_exists(pos) && nextParticles[pos.x][pos.y] == 0;
+    return cell_exists(pos) && nextParticles[pos.x][pos.y].id == 0;
 }
 
 void simulation::tick_particles(){
     for(size_t i = 0; i < tick_order.size(); i++){
         point p = tick_order[i];
-        unsigned char id = currentParticles[p.x][p.y];
+        unsigned char id = currentParticles[p.x][p.y].id;
             switch (id) {
                 //Sand
                 case 1:
@@ -99,7 +98,8 @@ void simulation::tick_particles(){
                 case 2:
                     tick_water(p);
                 break;
-                case 3:
+                case 4:
+                    tick_ice(p);
                 break;
             }
     }
@@ -139,15 +139,15 @@ void simulation::tick_water(point pos){
 }
 
 void simulation::tick_sand(point pos){
-     int rng = rand() % 2;
+    int rng = rand() % 2;
     //Below
     if(cell_exists(pos.below())) {
         point t = pos.below();
-        if(nextParticles[pos.x][pos.y + 1] == 0) {
+        if(nextParticles[pos.x][pos.y + 1].id == 0) {
             swap_particles(pos, t);
             return;
         }
-        if(nextParticles[pos.x][pos.y + 1] == 2) {
+        if(nextParticles[pos.x][pos.y + 1].id == 2) {
             //Try to push water before swapping
             if(is_air(t.left())){
                 swap_particles(t, t.left());
@@ -163,11 +163,11 @@ void simulation::tick_sand(point pos){
     //Below Left
     if(cell_exists(pos.below().left()) && rng == 0) {
         point t = pos.below().left();
-        if(nextParticles[pos.x - 1][pos.y + 1] == 0) {
+        if(nextParticles[pos.x - 1][pos.y + 1].id == 0) {
             swap_particles(pos, t);
             return;
         }
-        if(nextParticles[pos.x - 1][pos.y + 1] == 2) {
+        if(nextParticles[pos.x - 1][pos.y + 1].id == 2) {
             //Try to push water before swapping
             if(is_air(t.left())){
                 swap_particles(t, t.left());
@@ -183,11 +183,11 @@ void simulation::tick_sand(point pos){
     //Below Right
     if(cell_exists(pos.below().right()) && rng == 1) {
         point t = pos.below().right();
-        if(nextParticles[pos.x + 1][pos.y + 1] == 0) {
+        if(nextParticles[pos.x + 1][pos.y + 1].id == 0) {
             swap_particles(pos, t);
             return;
         }
-        if(nextParticles[pos.x + 1][pos.y + 1] == 2) {
+        if(nextParticles[pos.x + 1][pos.y + 1].id == 2) {
             //Try to push water before swapping
             if(is_air(t.left())){
                 swap_particles(t, t.left());
@@ -202,12 +202,68 @@ void simulation::tick_sand(point pos){
     }
 }
 
+void simulation::tick_ice(point pos){
+    if(cell_exists(pos.below())){
+        if(nextParticles[pos.x][pos.y + 1].id == 2) {
+            set_particle(create_particle(4), pos.below());
+            return;
+        }
+    }
+    if(cell_exists(pos.above())){
+        if(nextParticles[pos.x][pos.y - 1].id == 2) {
+            set_particle(create_particle(4), pos.above());
+            return;
+        }
+    }
+    if(cell_exists(pos.left())){
+        if(nextParticles[pos.x - 1][pos.y].id == 2) {
+            set_particle(create_particle(4), pos.left());
+            return;
+        }
+    }
+    if(cell_exists(pos.right())){
+        if(nextParticles[pos.x + 1][pos.y].id == 2) {
+            set_particle(create_particle(4), pos.right());
+            return;
+        }
+    }
+}
+
+particle simulation::create_particle(char id){
+    int rng = rand() % 2;
+    ALLEGRO_COLOR color = al_map_rgb(0,0,30);
+    switch (id) {
+        case 1:
+            if(rng == 1)
+                color = al_map_rgb(180, 150, 0);
+            else
+                color = al_map_rgb(200, 180, 0);
+            break;
+        case 2:
+            color = al_map_rgb(50,50,250);
+            break;
+        case 3:
+            color = al_map_rgb(150,150,150);
+            break;
+        case 4:
+            if(rng == 1)
+                color = al_map_rgb(130,130,250);
+            else
+                color = al_map_rgb(180, 180, 250);
+            break;
+    }
+    return particle(id, color, point(0,0));
+}
+
+void simulation::set_particle(particle part, point p){
+    nextParticles[p.x][p.y] = part;
+    changedParticles.push_back(p);
+}
+
 void simulation::swap_particles(point start, point target){
-    char id = nextParticles[start.x][start.y];
-    nextParticles[start.x][start.y] = nextParticles[target.x][target.y];
-    nextParticles[target.x][target.y] = id;
-    changedParticles.push_back(start);
-    changedParticles.push_back(target);
+    particle original = nextParticles[start.x][start.y];
+    set_particle(nextParticles[target.x][target.y], start);
+    set_particle(original, target);
 }
 
 void simulation::draw_scene(){
@@ -222,8 +278,6 @@ void simulation::draw_scene(){
 }
 
 void simulation::draw_particles(bool redraw_all){
-
-
     if(!redraw_all){
         al_draw_bitmap(last_frame, 0, 0, 0);
         al_hold_bitmap_drawing(true);
@@ -248,8 +302,9 @@ void simulation::fill_area(char id, point top_left, point bottom_right){
             if(!cell_exists(point(x,y)))
                 continue;
             changedParticles.push_back(point(x,y));
-            currentParticles[x][y] = id;
-            nextParticles[x][y] = id;
+            particle p = create_particle(id);
+            currentParticles[x][y] = p;
+            nextParticles[x][y] = p;
         }
     }
 }
@@ -264,24 +319,12 @@ void simulation::fill_area(char id, point origin, int radius){
                 continue;
 
             changedParticles.push_back(cur_point);
-            currentParticles[cur_point.x][cur_point.y] = id;
-            nextParticles[cur_point.x][cur_point.y] = id;
+            particle p = create_particle(id);
+            currentParticles[cur_point.x][cur_point.y] = p;
+            nextParticles[cur_point.x][cur_point.y] = p;
         }
     }
 }
 ALLEGRO_COLOR simulation::get_color(point p){
-    unsigned char id = currentParticles[p.x][p.y];
-    char rng = rngValues[p.x][p.y];
-    switch (id) {
-        case 1:
-            rng = rng % 2;
-            if(rng == 1)
-                return al_map_rgb(180, 158, 0);
-            return al_map_rgb(180, 180, 0);
-        case 2:
-            return al_map_rgb(20, 40, 200);
-        case 3:
-            return al_map_rgb(100, 100, 100);
-    }
-    return al_map_rgb(0, 0, 30);
+    return currentParticles[p.x][p.y].color;
 }

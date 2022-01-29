@@ -1,4 +1,6 @@
-#pragma once
+#ifndef INPUT
+#define INPUT
+
 #include "point.h"
 #include "header.h"
 
@@ -21,3 +23,4 @@ public:
 
 	user_stuff();
 };
+#endif
