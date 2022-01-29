@@ -209,9 +209,33 @@ void simulation::tick_ice(point pos){
             return;
         }
     }
+    if(cell_exists(pos.below().left())){
+        if(nextParticles[pos.x - 1][pos.y + 1].id == 2) {
+            set_particle(create_particle(4), pos.below().left());
+            return;
+        }
+    }
+    if(cell_exists(pos.below().right())){
+        if(nextParticles[pos.x + 1][pos.y + 1].id == 2) {
+            set_particle(create_particle(4), pos.below().right());
+            return;
+        }
+    }
     if(cell_exists(pos.above())){
         if(nextParticles[pos.x][pos.y - 1].id == 2) {
             set_particle(create_particle(4), pos.above());
+            return;
+        }
+    }
+    if(cell_exists(pos.above().left())){
+        if(nextParticles[pos.x - 1][pos.y + 1].id == 2) {
+            set_particle(create_particle(4), pos.above().left());
+            return;
+        }
+    }
+    if(cell_exists(pos.above().right())){
+        if(nextParticles[pos.x + 1][pos.y + 1].id == 2) {
+            set_particle(create_particle(4), pos.above().right());
             return;
         }
     }
@@ -240,14 +264,17 @@ particle simulation::create_particle(char id){
                 color = al_map_rgb(200, 180, 0);
             break;
         case 2:
-            color = al_map_rgb(50,50,250);
+            color = al_map_rgb(50, 50, 250);
             break;
         case 3:
-            color = al_map_rgb(150,150,150);
+            if(rng == 1)
+                color = al_map_rgb(130, 130, 130);
+            else
+                color = al_map_rgb(150, 150, 150);
             break;
         case 4:
             if(rng == 1)
-                color = al_map_rgb(130,130,250);
+                color = al_map_rgb(130, 130, 250);
             else
                 color = al_map_rgb(180, 180, 250);
             break;
