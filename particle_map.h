@@ -16,6 +16,7 @@ public:
 	~particle_map();
 
 	bool in_bounds(point pos);
+	bool is_type(char id, point pos);
 
 	void set_particle(particle* part, point pos);
 	void swap_particles(point start, point target);
@@ -31,6 +32,4 @@ public:
 	void clear_changed_particles();
 	vector<point> get_changed_particles();
 };
-
-
 #endif

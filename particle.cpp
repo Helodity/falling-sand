@@ -37,70 +37,38 @@ sand_particle::sand_particle()
 	velocity = point(0,0);
 }
 void sand_particle::tick(particle_map* map, point pos){
-	int rng = rand() % 2;
-    //Below
-    if(map->in_bounds(pos.below())) {
-        point t = pos.below();
-        char id = map->get_next_particle(t)->id;
-        if(id == 0) {
-            map->swap_particles(pos, t);
-            return;
-        }
-        if(id == 2) {
-            //Try to push water before swapping
-            if(map->get_next_particle(t.left())->id == 0){
-                map->swap_particles(t, t.left());
-            } else if(map->get_next_particle(t.right())->id == 0){
-                map->swap_particles(t, t.right());
-            } else if(map->get_next_particle(t.below())->id == 0){
-                map->swap_particles(t, t.below());
-            }
-            map->swap_particles(pos, t);
-            return;
-        }
+    if(try_move(map, pos, pos.below())){return;}
+    int rng = rand() % 2;
+    if(rng == 0){
+        if(try_move(map, pos, pos.below().right())){return;}
+        if(try_move(map, pos, pos.below().left())){return;}
+    } else{
+        if(try_move(map, pos, pos.below().left())){return;}
+        if(try_move(map, pos, pos.below().right())){return;}
+    } 
+}
+
+bool sand_particle::try_move(particle_map* map, point pos, point target){
+    if(!map->in_bounds(target))
+        return false;
+    char id = map->get_next_particle(target)->id;
+    if(id == 0) {
+        map->swap_particles(pos, target);
+        return true;
     }
-    //Below Left
-    if(map->in_bounds(pos.below().left()) && rng == 0) {
-        point t = pos.below().left();
-        char id = map->get_next_particle(t)->id;
-        if(id == 0) {
-            map->swap_particles(pos, t);
-            return;
+    if(id == 2) {
+        //Try to push water before swapping
+        if(map->is_type(0, target.left())){
+            map->swap_particles(target, target.left());
+        } else if(map->is_type(0, target.right())){
+            map->swap_particles(target, target.right());
+        } else if(map->is_type(0, target.below())){
+            map->swap_particles(target, target.below());
         }
-        if(id == 2) {
-            //Try to push water before swapping
-            if(map->get_next_particle(t.left())->id == 0){
-                map->swap_particles(t, t.left());
-            } else if(map->get_next_particle(t.right())->id == 0){
-                map->swap_particles(t, t.right());
-            } else if(map->get_next_particle(t.below())->id == 0){
-                map->swap_particles(t, t.below());
-            }
-            map->swap_particles(pos, t);
-            return;
-        }
+        map->swap_particles(pos, target);
+        return true;
     }
-    //Below Right
-    if(map->in_bounds(pos.below().right()) && rng == 1) {
-        point t = pos.below().right();
-        char id = map->get_next_particle(t)->id;
-        if(id == 0) {
-            map->swap_particles(pos, t);
-            return;
-        }
-        if(id == 2) {
-            //Try to push water before swapping
-            if(map->get_next_particle(t.left())->id == 0){
-                map->swap_particles(t, t.left());
-            } else if(map->get_next_particle(t.right())->id == 0){
-                map->swap_particles(t, t.right());
-            } else if(map->get_next_particle(t.below())->id == 0){
-                map->swap_particles(t, t.below());
-            }
-            map->swap_particles(pos, t);
-            return;
-        }
-    }
+    return false;
 }
 
 
@@ -112,36 +80,33 @@ water_particle::water_particle()
 }
 
 void water_particle::tick(particle_map* map, point pos){
-    int rng = rand() % 2;
     //Below
-    if(map->in_bounds(pos.below()) && map->get_next_particle(pos.below())->id == 0) {
-        map->swap_particles(pos, pos.below());
-        return;
-    }
-    //Below Left
-    if(map->in_bounds(pos.below().left()) && map->get_next_particle(pos.below().left())->id == 0 && rng == 0) {
-        map->swap_particles(pos, pos.below().left());
-        return;
-    }
-    //Below Right
-    if(map->in_bounds(pos.below().right()) && map->get_next_particle(pos.below().right())->id == 0 && rng == 1) {
-        map->swap_particles(pos, pos.below().right());
-        return;
-    }
-    //Left
-    if(map->in_bounds(pos.left()) && map->get_next_particle(pos.left())->id == 0 && rng == 0) {
-        map->swap_particles(pos, pos.left());
-        return;
-    }
-    //Right
-    if(map->in_bounds(pos.right()) && map->get_next_particle(pos.right())->id == 0 && rng == 1) {
-        map->swap_particles(pos, pos.right());
-        return;
+    if(try_move(map,pos, pos.below())){return;}
+    //Rng changes the check order
+    int rng = rand() % 2;
+    if(rng == 0){
+        if(try_move(map,pos, pos.below().left())){return;}
+        if(try_move(map,pos, pos.left())){return;}
+        if(try_move(map,pos, pos.below().right())){return;}
+        if(try_move(map,pos, pos.right())){return;}
+    } else {
+        if(try_move(map,pos, pos.below().right())){return;}
+        if(try_move(map,pos, pos.right())){return;}
+        if(try_move(map,pos, pos.below().left())){return;}
+        if(try_move(map,pos, pos.left())){return;}
     }
 }
 
+bool water_particle::try_move(particle_map* map, point pos, point target){
+    if(map->is_type(0,target)) {
+        map->swap_particles(pos, target);
+        return true;
+    }
+    return false;
+}
+
 barrier_particle::barrier_particle(){
-    id = 1;
+    id = 3;
 	int rng = rand() % 2;
 	if(rng == 1)
         color = al_map_rgb(130, 130, 130);
@@ -155,7 +120,7 @@ void barrier_particle::tick(particle_map* map, point pos){
 
 ice_particle::ice_particle()
 {
-    id = 1;
+    id = 4;
 	int rng = rand() % 2;
 	if(rng == 1)
         color = al_map_rgb(130, 130, 250);

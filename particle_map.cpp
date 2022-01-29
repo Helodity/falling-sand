@@ -20,7 +20,9 @@ particle_map::~particle_map(){
 bool particle_map::in_bounds(point pos){
     return pos.x >= 0 && pos.y >= 0 && pos.x < SCREEN_WIDTH && pos.y < SCREEN_HEIGHT;
 }
-
+bool particle_map::is_type(char id, point pos){
+    return in_bounds(pos) && get_next_particle(pos)->id == id;
+}
 
 void particle_map::set_particle(particle* part, point pos){
     if(!in_bounds(pos))
@@ -41,8 +43,11 @@ void particle_map::fill_rectangle_area(char id, point top_left, point bottom_rig
         for(int y = top_left.y; y < bottom_right.y; y++){
             if(!in_bounds(point(x,y)))
                 continue;
+            if(is_type(id, point(x,y)))
+                continue;
             particle* p = create_particle(id);
             set_particle(p, point(x,y));
+            current_particles[x][y] = p;
         }
     }
 }
@@ -54,10 +59,13 @@ void particle_map::fill_circular_area(char id, point origin, int radius){
             cur_point = point(origin.x + x,origin.y + y);
             if(!in_bounds(cur_point))
                 continue;
+            if(is_type(id, cur_point))
+                continue;
             if(x * x + y * y > radius * radius)
                 continue;
             particle* p = create_particle(id);
             set_particle(p, cur_point);
+            current_particles[cur_point.x][cur_point.y] = p;
         }
     }
 }
@@ -86,7 +94,6 @@ void particle_map::store_next_particles(){
     int size = changed_particles.size();
     for(size_t i = 0; i < size; i++){
         point p = changed_particles[i];
-        //delete current_particles[p.x][p.y];
         current_particles[p.x][p.y] = next_particles[p.x][p.y];
     }
 }

@@ -26,12 +26,17 @@ public:
 };
 
 class sand_particle : public particle {
+private:
+	bool try_move(particle_map* map, point pos, point target);
+
 public:
 	void tick(particle_map* map, point pos);
 	sand_particle();
 };
 
 class water_particle : public particle {
+private:
+	bool try_move(particle_map* map, point pos, point target);
 public:
 	void tick(particle_map* map, point pos);
 	water_particle();
