@@ -50,14 +50,17 @@ void simulation::handle_user_input(){
         case ALLEGRO_KEY_1:
             place_data->selected_id = 1;
             break;
-            case ALLEGRO_KEY_2:
+        case ALLEGRO_KEY_2:
             place_data->selected_id = 2;
             break;
-            case ALLEGRO_KEY_3:
+        case ALLEGRO_KEY_3:
             place_data->selected_id = 3;
             break;
-            case ALLEGRO_KEY_4:
+        case ALLEGRO_KEY_4:
             place_data->selected_id = 4;
+            break;
+        case ALLEGRO_KEY_5:
+            place_data->selected_id = 5;
             break;
         }
     }

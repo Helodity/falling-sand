@@ -57,5 +57,17 @@ public:
 	ice_particle();
 };
 
+class acid_particle : public particle {
+private:
+	bool move(particle_map* map, point pos);
+	bool melt(particle_map* map, point pos);
+	bool try_move(particle_map* map, point pos, point target);
+	bool try_melt(particle_map* map, point pos, point target);
+
+public:
+	void tick(particle_map* map, point pos);
+	acid_particle();
+};
+
 
 #endif

@@ -71,6 +71,7 @@ void particle_map::fill_circular_area(char id, point origin, int radius){
 }
 
 particle* particle_map::create_particle(char id){ 
+    //We need to delete the old particle to fix the memory leak
     switch (id) {
         case 1:
             return new sand_particle();
@@ -80,6 +81,8 @@ particle* particle_map::create_particle(char id){
             return new barrier_particle();
         case 4:
             return new ice_particle();
+        case 5:
+            return new acid_particle();
     }
     return new air_particle();
 }

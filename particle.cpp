@@ -143,3 +143,69 @@ bool ice_particle::try_spread(particle_map* map, point pos, point target){
     }
     return false;
 }
+
+acid_particle::acid_particle()
+{
+    id = 5;
+	color = al_map_rgb(0, 250, 0);
+	velocity = point(0,0);
+}
+
+void acid_particle::tick(particle_map* map, point pos){
+    if(melt(map,pos)) {return;}
+    move(map, pos);
+}
+
+bool acid_particle::move(particle_map* map, point pos){
+    //Below
+    if(try_move(map,pos, pos.below())){return true;}
+    //Rng changes the check order
+    int rng = rand() % 2;
+    if(rng == 0){
+        if(try_move(map,pos, pos.below().left())){return true;}
+        if(try_move(map,pos, pos.left())){return true;}
+        if(try_move(map,pos, pos.below().right())){return true;}
+        if(try_move(map,pos, pos.right())){return true;}
+    } else {
+        if(try_move(map,pos, pos.below().right())){return true;}
+        if(try_move(map,pos, pos.right())){return true;}
+        if(try_move(map,pos, pos.below().left())){return true;}
+        if(try_move(map,pos, pos.left())){return true;}
+    }
+    return false;
+}
+
+bool acid_particle::melt(particle_map* map, point pos){
+    if (try_melt(map, pos, pos.below())){return true;}
+    if (try_melt(map, pos, pos.left())){return true;}
+    if (try_melt(map, pos, pos.above())){return true;}
+    if (try_melt(map, pos, pos.right())){return true;}
+
+    return false;
+}
+
+bool acid_particle::try_move(particle_map* map, point pos, point target){
+    if(map->in_bounds(target)){
+        char id = map->get_next_particle(target)->id;
+        if(id == 0) {
+            map->swap_particles(pos, target);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool acid_particle::try_melt(particle_map* map, point pos, point target){
+    if(!map->in_bounds(target))
+        return false;
+    int rng = rand() % 4;
+    if(rng == 0)
+        return false;
+    char id = map->get_next_particle(target)->id;
+    if(id != 5 && id != 0){
+        map->set_particle(map->create_particle(0), target);
+        map->set_particle(map->create_particle(0), pos);
+        return true;
+    }
+    return false;
+}
