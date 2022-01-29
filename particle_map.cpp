@@ -2,6 +2,16 @@
 
 
 particle_map::particle_map(){
+    for(int x = 0; x < SCREEN_WIDTH; x++){
+        for(int y = 0; y < SCREEN_HEIGHT; y++){
+            if(!in_bounds(point(x,y)))
+                continue;
+
+            particle* p = create_particle(0);
+            set_particle(p, point(x,y));
+            current_particles[x][y] = p;
+        }
+    }
 }
 
 particle_map::~particle_map(){
@@ -12,16 +22,17 @@ bool particle_map::in_bounds(point pos){
 }
 
 
-void particle_map::set_particle(particle part, point pos){
+void particle_map::set_particle(particle* part, point pos){
     if(!in_bounds(pos))
         return;
 
 	next_particles[pos.x][pos.y] = part;
+
     changed_particles.push_back(pos);
 }
 
 void particle_map::swap_particles(point start, point target){
-	particle original = next_particles[start.x][start.y];
+	particle* original = next_particles[start.x][start.y];
     set_particle(next_particles[target.x][target.y], start);
     set_particle(original, target);
 }
@@ -31,8 +42,7 @@ void particle_map::fill_rectangle_area(char id, point top_left, point bottom_rig
         for(int y = top_left.y; y < bottom_right.y; y++){
             if(!in_bounds(point(x,y)))
                 continue;
-
-            particle p = create_particle(id);
+            particle* p = create_particle(id);
             set_particle(p, point(x,y));
         }
     }
@@ -47,46 +57,30 @@ void particle_map::fill_circular_area(char id, point origin, int radius){
                 continue;
             if(x * x + y * y > radius * radius)
                 continue;
-
-            particle p = create_particle(id);
+            particle* p = create_particle(id);
             set_particle(p, cur_point);
         }
     }
 }
 
-particle particle_map::create_particle(char id){
-    int rng = rand() % 2;
-    ALLEGRO_COLOR color = al_map_rgb(0,0,30);
+particle* particle_map::create_particle(char id){ 
     switch (id) {
         case 1:
-            if(rng == 1)
-                color = al_map_rgb(180, 150, 0);
-            else
-                color = al_map_rgb(200, 180, 0);
-            break;
+            return new sand_particle();
         case 2:
-            color = al_map_rgb(50, 50, 250);
-            break;
+            return new water_particle();
         case 3:
-            if(rng == 1)
-                color = al_map_rgb(130, 130, 130);
-            else
-                color = al_map_rgb(150, 150, 150);
-            break;
+            return new barrier_particle();
         case 4:
-            if(rng == 1)
-                color = al_map_rgb(130, 130, 250);
-            else
-                color = al_map_rgb(180, 180, 250);
-            break;
+            return new ice_particle();
     }
-    return particle(id, color, point(0,0));
+    return new air_particle();
 }
 
-particle particle_map::get_current_particle(point p){
+particle* particle_map::get_current_particle(point p){
     return current_particles[p.x][p.y];
 }
-particle particle_map::get_next_particle(point p){
+particle* particle_map::get_next_particle(point p){
     return next_particles[p.x][p.y];
 }
 void particle_map::store_next_particles(){
