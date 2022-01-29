@@ -13,6 +13,9 @@ bool particle_map::in_bounds(point pos){
 
 
 void particle_map::set_particle(particle part, point pos){
+    if(!in_bounds(pos))
+        return;
+
 	next_particles[pos.x][pos.y] = part;
     changed_particles.push_back(pos);
 }
@@ -28,7 +31,7 @@ void particle_map::fill_rectangle_area(char id, point top_left, point bottom_rig
         for(int y = top_left.y; y < bottom_right.y; y++){
             if(!in_bounds(point(x,y)))
                 continue;
-            changed_particles.push_back(point(x,y));
+
             particle p = create_particle(id);
             set_particle(p, point(x,y));
         }
@@ -45,10 +48,8 @@ void particle_map::fill_circular_area(char id, point origin, int radius){
             if(x * x + y * y > radius * radius)
                 continue;
 
-            changed_particles.push_back(cur_point);
             particle p = create_particle(id);
-            current_particles[cur_point.x][cur_point.y] = p;
-            next_particles[cur_point.x][cur_point.y] = p;
+            set_particle(p, cur_point);
         }
     }
 }

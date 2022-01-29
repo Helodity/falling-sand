@@ -3,6 +3,7 @@
 #include "global.h"
 #include "particle.h"
 
+class particle;
 class particle_map{
 private:
 	particle current_particles[SCREEN_WIDTH][SCREEN_HEIGHT];

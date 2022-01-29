@@ -101,27 +101,27 @@ void simulation::tick_particles(){
 void simulation::tick_water(point pos){
     int rng = rand() % 2;
     //Below
-    if(map->get_next_particle(pos.below()).id == 0) {
+    if(map->in_bounds(pos.below()) && map->get_next_particle(pos.below()).id == 0) {
         map->swap_particles(pos, pos.below());
         return;
     }
     //Below Left
-    if(map->get_next_particle(pos.below().left()).id == 0 && rng == 0) {
+    if(map->in_bounds(pos.below().left()) && map->get_next_particle(pos.below().left()).id == 0 && rng == 0) {
         map->swap_particles(pos, pos.below().left());
         return;
     }
     //Below Right
-    if(map->get_next_particle(pos.below().right()).id == 0 && rng == 1) {
+    if(map->in_bounds(pos.below().right()) && map->get_next_particle(pos.below().right()).id == 0 && rng == 1) {
         map->swap_particles(pos, pos.below().right());
         return;
     }
     //Left
-    if(map->get_next_particle(pos.left()).id == 0 && rng == 0) {
+    if(map->in_bounds(pos.left()) && map->get_next_particle(pos.left()).id == 0 && rng == 0) {
         map->swap_particles(pos, pos.left());
         return;
     }
     //Right
-    if(map->get_next_particle(pos.right()).id == 0 && rng == 1) {
+    if(map->in_bounds(pos.right()) && map->get_next_particle(pos.right()).id == 0 && rng == 1) {
         map->swap_particles(pos, pos.right());
         return;
     }
@@ -237,7 +237,7 @@ void simulation::tick_ice(point pos){
             return;
         }
     }
-    if(map->in_bounds(pos.right())){
+    if(map->in_bounds(pos.left())){
         if(map->get_current_particle(pos.left()).id == 2) {
             map->set_particle(map->create_particle(4), pos.right());
             return;
