@@ -11,6 +11,9 @@ public:
 	point left();
 	point right();
 	point above();
+	bool operator==(const point& b){
+		return equals(b);
+	}
 	point operator+(const point& b){
 		return point(x + b.x, y + b.y);
 	}

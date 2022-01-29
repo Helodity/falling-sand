@@ -83,9 +83,10 @@ particle* particle_map::get_next_particle(point p){
     return next_particles[p.x][p.y];
 }
 void particle_map::store_next_particles(){
-    for(size_t i = 0; i < changed_particles.size(); i++){
+    int size = changed_particles.size();
+    for(size_t i = 0; i < size; i++){
         point p = changed_particles[i];
-        delete current_particles[p.x][p.y];
+        //delete current_particles[p.x][p.y];
         current_particles[p.x][p.y] = next_particles[p.x][p.y];
     }
 }

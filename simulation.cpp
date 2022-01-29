@@ -73,6 +73,8 @@ void simulation::tick(){
     handle_user_input();
     tick_particles();
     draw_scene();
+
+    map->clear_changed_particles();
 }
 
 void simulation::tick_particles(){
@@ -85,7 +87,6 @@ void simulation::tick_particles(){
 
 void simulation::draw_scene(){
     draw_particles(false);
-    map->clear_changed_particles();
 
     al_destroy_bitmap(last_frame);
     last_frame = al_clone_bitmap(al_get_target_bitmap());
