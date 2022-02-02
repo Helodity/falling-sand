@@ -14,6 +14,7 @@
 
 using namespace std;
 
+const int TARGET_FPS = 60;
 extern float CURRENT_FPS;
 const int SCREEN_WIDTH = 600;
 const int SCREEN_HEIGHT = 500;
