@@ -13,9 +13,11 @@ public:
 	//These variables can vary between particles
 	point velocity;
 	ALLEGRO_COLOR color;
+	bool is_liquid;
+
+
 	virtual void tick(particle_map* map, point pos) = 0;
 	particle();
-	particle(char id, ALLEGRO_COLOR c, point v);
 	~particle();
 };
 

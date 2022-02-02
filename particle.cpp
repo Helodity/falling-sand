@@ -3,26 +3,17 @@
 particle::particle() :
 	id(0),
 	velocity(point::point()),
-	color(al_map_rgb(0,0,30))
+	color(al_map_rgb(0,0,30)),
+    is_liquid(false)
 {
 }
-
-particle::particle(char id, ALLEGRO_COLOR c, point v) :
-	id(id),
-	velocity(v),
-	color(c)
-{
-}
-
 particle::~particle()
 {
 }
 
-
 air_particle::air_particle():
     particle(){
 }
-
 void air_particle::tick(particle_map* map, point pos){
 }
 
@@ -35,6 +26,7 @@ sand_particle::sand_particle()
     else
         color = al_map_rgb(200, 180, 0);
 	velocity = point(0,0);
+    is_liquid = false;
 }
 void sand_particle::tick(particle_map* map, point pos){
     if(try_move(map, pos, pos.below())){return;}
@@ -47,7 +39,6 @@ void sand_particle::tick(particle_map* map, point pos){
         if(try_move(map, pos, pos.below().right())){return;}
     } 
 }
-
 bool sand_particle::try_move(particle_map* map, point pos, point target){
     if(!map->in_bounds(target))
         return false;
@@ -71,14 +62,13 @@ bool sand_particle::try_move(particle_map* map, point pos, point target){
     return false;
 }
 
-
 water_particle::water_particle()
 {
     id = 2;
 	color = al_map_rgb(50, 50, 250);
 	velocity = point(0,0);
+    is_liquid = true;
 }
-
 void water_particle::tick(particle_map* map, point pos){
     //Below
     if(try_move(map,pos, pos.below())){return;}
@@ -96,7 +86,6 @@ void water_particle::tick(particle_map* map, point pos){
         if(try_move(map,pos, pos.left())){return;}
     }
 }
-
 bool water_particle::try_move(particle_map* map, point pos, point target){
     if(map->is_type(0,target)) {
         map->swap_particles(pos, target);
@@ -113,8 +102,8 @@ barrier_particle::barrier_particle(){
     else
         color = al_map_rgb(150, 150, 150);
 	velocity = point(0,0);
+    is_liquid = false;
 }
-
 void barrier_particle::tick(particle_map* map, point pos){
 }
 
@@ -127,15 +116,14 @@ ice_particle::ice_particle()
     else
         color = al_map_rgb(150, 150, 250);
 	velocity = point(0,0);
+    is_liquid = false;
 }
-
 void ice_particle::tick(particle_map* map, point pos){
     if (try_spread(map, pos, pos.below())){return;}
     if (try_spread(map, pos, pos.left())){return;}
     if (try_spread(map, pos, pos.above())){return;}
     if (try_spread(map, pos, pos.right())){return;}
 }
-
 bool ice_particle::try_spread(particle_map* map, point pos, point target){
     if(map->is_type(2, target)){
         map->set_particle(4, target);
@@ -149,13 +137,12 @@ acid_particle::acid_particle()
     id = 5;
 	color = al_map_rgb(0, 250, 0);
 	velocity = point(0,0);
+    is_liquid = true;
 }
-
 void acid_particle::tick(particle_map* map, point pos){
     if(melt(map,pos)) {return;}
     move(map, pos);
 }
-
 bool acid_particle::move(particle_map* map, point pos){
     //Below
     if(try_move(map,pos, pos.below())){return true;}
@@ -174,7 +161,6 @@ bool acid_particle::move(particle_map* map, point pos){
     }
     return false;
 }
-
 bool acid_particle::melt(particle_map* map, point pos){
     if (try_melt(map, pos, pos.below())){return true;}
     if (try_melt(map, pos, pos.left())){return true;}
@@ -183,7 +169,6 @@ bool acid_particle::melt(particle_map* map, point pos){
 
     return false;
 }
-
 bool acid_particle::try_move(particle_map* map, point pos, point target){
     if(map->in_bounds(target)){
         char id = map->get_next_particle(target)->id;
@@ -194,15 +179,16 @@ bool acid_particle::try_move(particle_map* map, point pos, point target){
     }
     return false;
 }
-
 bool acid_particle::try_melt(particle_map* map, point pos, point target){
     if(!map->in_bounds(target))
         return false;
-    int rng = rand() % 4;
-    if(rng == 0)
+    particle* target_p = map->get_next_particle(target);
+
+    int rng = rand() % 256;
+    if(rng < 255 && !target_p->is_liquid)
         return false;
-    char id = map->get_next_particle(target)->id;
-    if(id != 5 && id != 0){
+
+    if(target_p->id != 5 && target_p->id != 0){
         map->set_particle(0, target);
         map->set_particle(0, pos);
         return true;

@@ -3,7 +3,7 @@
 #include "global.h"
 #include "particle.h"
 
-class particle; //TODO: resolve cyclical dependency
+class particle;
 class particle_map{
 private:
 
