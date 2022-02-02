@@ -102,6 +102,13 @@ void simulation::draw_scene(){
     last_frame = al_clone_bitmap(al_get_target_bitmap());
 
     al_draw_circle(user_input->mouse_pos.x,user_input->mouse_pos.y, place_data->place_radius, al_map_rgb(255,0,0), 2);
+
+    string fpsString = std::to_string(CURRENT_FPS);
+    al_draw_filled_rectangle(1, 1, fpsString.length() * 8, 10, al_map_rgb(100, 100, 100));
+    ALLEGRO_FONT* font = al_create_builtin_font();
+    al_draw_text(font, al_map_rgb(255, 255, 255), 1, 1, 0, fpsString.c_str());
+    al_destroy_font(font);
+
     al_flip_display();
 }
 

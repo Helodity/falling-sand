@@ -1,4 +1,7 @@
 #include "main.h"
+#include "global.h"
+
+float CURRENT_FPS;
 
 int main()
 {
@@ -22,6 +25,7 @@ int main()
 
     game = new simulation();
 
+    double prev_frame_time = 0.0;
     while(1)
     {
         al_wait_for_event(queue, &event);
@@ -33,6 +37,10 @@ int main()
         game->handle_event(event);
         if(redraw && al_is_event_queue_empty(queue))
         {
+            double cur_time = al_get_time();
+            CURRENT_FPS = 1 / (cur_time - prev_frame_time);
+            prev_frame_time = cur_time;
+
             game->tick();
             redraw = false;
         }
