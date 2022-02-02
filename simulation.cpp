@@ -62,6 +62,9 @@ void simulation::handle_user_input(){
         case ALLEGRO_KEY_5:
             place_data->selected_id = 5;
             break;
+            case ALLEGRO_KEY_6:
+            place_data->selected_id = 6;
+            break;
         }
     }
     user_input->keycodes.clear();

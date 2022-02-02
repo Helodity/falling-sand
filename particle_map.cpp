@@ -27,7 +27,8 @@ bool particle_map::is_type(char id, point pos){
 void particle_map::set_particle(char id, point pos){
     if(!in_bounds(pos))
         return;
-
+    if(is_type(id, pos))
+        return;
     to_delete.push_back(next_particles[pos.x][pos.y]);
 
     particle* p = create_particle(id);
@@ -90,6 +91,8 @@ particle* particle_map::create_particle(char id){
             return new ice_particle();
         case 5:
             return new acid_particle();
+        case 6:
+            return new spout_particle();
     }
     return new air_particle();
 }

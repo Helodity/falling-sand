@@ -13,7 +13,7 @@ public:
 	//These variables can vary between particles
 	point velocity;
 	ALLEGRO_COLOR color;
-	bool is_liquid;
+	float disolve_chance;
 
 
 	virtual void tick(particle_map* map, point pos) = 0;
@@ -69,6 +69,18 @@ private:
 public:
 	void tick(particle_map* map, point pos);
 	acid_particle();
+};
+
+class spout_particle : public particle {
+private:
+	void copy(particle_map* map, point pos);
+	bool try_copy(particle_map* map, point pos, point target);
+	void spawn(particle_map* map, point pos);
+	bool try_spawn(particle_map* map, point pos, point target);
+	char id_to_spawn = 0;
+public:
+	void tick(particle_map* map, point pos);
+	spout_particle();
 };
 
 
