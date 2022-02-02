@@ -26,7 +26,7 @@ sand_particle::sand_particle()
     else
         color = al_map_rgb(200, 180, 0);
 	velocity = point(0,0);
-    disolve_chance = 0.5;
+    disolve_chance = 0.1;
 }
 void sand_particle::tick(particle_map* map, point pos){
     if(try_move(map, pos, pos.below())){return;}
@@ -102,7 +102,7 @@ barrier_particle::barrier_particle(){
     else
         color = al_map_rgb(150, 150, 150);
 	velocity = point(0,0);
-    disolve_chance = .05;
+    disolve_chance = .01;
 }
 void barrier_particle::tick(particle_map* map, point pos){
 }
@@ -116,7 +116,7 @@ ice_particle::ice_particle()
     else
         color = al_map_rgb(150, 150, 250);
 	velocity = point(0,0);
-    disolve_chance = 0.4;
+    disolve_chance = 0.05;
 }
 void ice_particle::tick(particle_map* map, point pos){
     if (try_spread(map, pos, pos.below())){return;}
