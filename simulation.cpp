@@ -62,7 +62,7 @@ void simulation::handle_user_input(){
         case ALLEGRO_KEY_5:
             place_data->selected_id = 5;
             break;
-            case ALLEGRO_KEY_6:
+        case ALLEGRO_KEY_6:
             place_data->selected_id = 6;
             break;
         }
@@ -128,7 +128,7 @@ void simulation::draw_particles(bool redraw_all){
         al_lock_bitmap(al_get_target_bitmap(), ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
         for(unsigned int y = 0; y < SCREEN_HEIGHT; y++){
             for(unsigned int x = 0; x < SCREEN_WIDTH; x++){
-                al_put_pixel(x - 1,y - 1, map->get_current_particle(point(x,y))->color);
+                al_put_pixel(x,y, map->get_current_particle(point(x,y))->color);
             }
         }
         al_unlock_bitmap(al_get_target_bitmap());
