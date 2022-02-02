@@ -138,7 +138,7 @@ void ice_particle::tick(particle_map* map, point pos){
 
 bool ice_particle::try_spread(particle_map* map, point pos, point target){
     if(map->is_type(2, target)){
-        map->set_particle(map->create_particle(4), target);
+        map->set_particle(4, target);
         return true;
     }
     return false;
@@ -203,8 +203,8 @@ bool acid_particle::try_melt(particle_map* map, point pos, point target){
         return false;
     char id = map->get_next_particle(target)->id;
     if(id != 5 && id != 0){
-        map->set_particle(map->create_particle(0), target);
-        map->set_particle(map->create_particle(0), pos);
+        map->set_particle(0, target);
+        map->set_particle(0, pos);
         return true;
     }
     return false;

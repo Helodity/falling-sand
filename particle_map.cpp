@@ -24,7 +24,18 @@ bool particle_map::is_type(char id, point pos){
     return in_bounds(pos) && get_next_particle(pos)->id == id;
 }
 
-void particle_map::set_particle(particle* part, point pos){
+void particle_map::set_particle(char id, point pos){
+    if(!in_bounds(pos))
+        return;
+
+    to_delete.push_back(next_particles[pos.x][pos.y]);
+
+    particle* p = create_particle(id);
+    current_particles[pos.x][pos.y] = p;
+	next_particles[pos.x][pos.y] = p;
+    changed_particles.push_back(pos);
+}
+void particle_map::move_particle(particle* part, point pos){
     if(!in_bounds(pos))
         return;
 
@@ -34,20 +45,19 @@ void particle_map::set_particle(particle* part, point pos){
 
 void particle_map::swap_particles(point start, point target){
 	particle* original = next_particles[start.x][start.y];
-    set_particle(next_particles[target.x][target.y], start);
-    set_particle(original, target);
+    move_particle(next_particles[target.x][target.y], start);
+    move_particle(original, target);
 }
 
 void particle_map::fill_rectangle_area(char id, point top_left, point bottom_right){
     for(int x = top_left.x; x < bottom_right.x; x++){
         for(int y = top_left.y; y < bottom_right.y; y++){
-            if(!in_bounds(point(x,y)))
+            point cur_point = point(x,y);
+            if(!in_bounds(cur_point))
                 continue;
-            if(is_type(id, point(x,y)))
+            if(is_type(id, cur_point))
                 continue;
-            particle* p = create_particle(id);
-            set_particle(p, point(x,y));
-            current_particles[x][y] = p;
+            set_particle(id, cur_point);
         }
     }
 }
@@ -63,15 +73,12 @@ void particle_map::fill_circular_area(char id, point origin, int radius){
                 continue;
             if(x * x + y * y > radius * radius)
                 continue;
-            particle* p = create_particle(id);
-            set_particle(p, cur_point);
-            current_particles[cur_point.x][cur_point.y] = p;
+            set_particle(id, cur_point);
         }
     }
 }
 
 particle* particle_map::create_particle(char id){ 
-    //We need to delete the old particle to fix the memory leak
     switch (id) {
         case 1:
             return new sand_particle();
@@ -93,6 +100,15 @@ particle* particle_map::get_current_particle(point p){
 particle* particle_map::get_next_particle(point p){
     return next_particles[p.x][p.y];
 }
+
+void particle_map::delete_unused(){
+    int size = to_delete.size();
+    for(size_t i = 0; i < size; i++){
+        delete to_delete[i];
+    }
+    to_delete.clear();
+}
+
 void particle_map::store_next_particles(){
     int size = changed_particles.size();
     for(size_t i = 0; i < size; i++){

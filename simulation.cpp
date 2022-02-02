@@ -78,6 +78,7 @@ void simulation::tick(){
     draw_scene();
 
     map->clear_changed_particles();
+    map->delete_unused();
 }
 
 void simulation::tick_particles(){
